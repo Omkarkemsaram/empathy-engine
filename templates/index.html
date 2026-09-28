@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Empathy Engine — Darwix AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+  <header class="header">
+    <div class="logo">
+      <span class="logo-icon">🎙</span>
+      <div>
+        <span class="logo-title">Empathy Engine</span>
+        <span class="logo-sub">· Darwix AI Challenge 1</span>
+      </div>
+    </div>
+    <nav class="header-nav">
+      <span class="nav-badge">v2.0</span>
+      <span class="status-dot" id="statusDot"></span>
+      <span class="status-label" id="statusLabel">Ready</span>
+    </nav>
+  </header>
+
+  <main class="main">
+
+    <!-- Input -->
+    <section class="panel input-panel">
+      <div class="panel-header">
+        <h2>Text Input</h2>
+        <span class="panel-hint">Paste any text — email, complaint, pitch, anything</span>
+      </div>
+
+      <textarea id="textInput" class="text-input" placeholder="Type something with emotion... e.g. 'This is absolutely incredible! I can't believe it worked!' or 'I'm really frustrated, this keeps failing again.'" rows="6"></textarea>
+      <div class="char-count"><span id="charCount">0</span> characters</div>
+
+      <div class="style-row">
+        <label class="style-label">Voice Style</label>
+        <div class="style-pills">
+          <button class="pill active" data-style="auto">Auto</button>
+          <button class="pill" data-style="professional">Professional</button>
+          <button class="pill" data-style="warm">Warm</button>
+          <button class="pill" data-style="dramatic">Dramatic</button>
+        </div>
+      </div>
+
+      <div class="examples-row">
+        <span class="examples-label">Try:</span>
+        <button class="example-chip" data-text="This is absolutely incredible news! I can't believe we finally did it! Best day ever!!!">😄 Joyful</button>
+        <button class="example-chip" data-text="I'm really frustrated. This issue has been happening again and again and nobody seems to care.">😠 Frustrated</button>
+        <button class="example-chip" data-text="Could you help me understand how this process works? I'm genuinely curious about the details.">🤔 Inquisitive</button>
+        <button class="example-chip" data-text="Wait... WHAT? No way! That is completely unbelievable. I did not see that coming at all!">😲 Surprised</button>
+        <button class="example-chip" data-text="I'm sorry to hear about that. It must have been really difficult for you. I truly understand.">😢 Sad</button>
+        <button class="example-chip" data-text="URGENT: We need this resolved immediately. The deadline is in one hour and this is critical.">⚡ Urgent</button>
+      </div>
+
+      <div class="action-row">
+        <button class="btn btn-ghost" id="analyzeBtn">🔍 Analyze Only</button>
+        <button class="btn btn-primary" id="synthesizeBtn">🎙 Generate Voice</button>
+      </div>
+    </section>
+
+    <!-- Emotion Analysis -->
+    <section class="panel emotion-panel" id="emotionPanel">
+      <div class="panel-header">
+        <h2>Emotion Analysis</h2>
+        <span class="panel-hint">10 emotional categories</span>
+      </div>
+
+      <div class="emotion-placeholder" id="emotionPlaceholder">
+        <div class="placeholder-icon">🧠</div>
+        <div class="placeholder-text">Awaiting analysis...</div>
+      </div>
+
+      <div class="emotion-result hidden" id="emotionResult">
+        <div class="primary-emotion-card" id="primaryCard">
+          <div class="primary-left">
+            <div class="emotion-emoji" id="emotionEmoji">😐</div>
+            <div>
+              <div class="emotion-name" id="emotionName">Neutral</div>
+              <div class="emotion-intensity" id="emotionIntensityLabel">minimal intensity</div>
+            </div>
+          </div>
+          <div class="intensity-gauge">
+            <div class="gauge-track">
+              <div class="gauge-fill" id="gaugeFill"></div>
+            </div>
+            <div class="gauge-value" id="gaugeValue">0%</div>
+          </div>
+        </div>
+
+        <div class="emotion-spectrum" id="emotionSpectrum"></div>
+        <div class="signals-row" id="signalsRow"></div>
+        <div class="runner-up" id="runnerUp"></div>
+      </div>
+    </section>
+
+    <!-- Vocal Modulation -->
+    <section class="panel vocal-panel" id="vocalPanel">
+      <div class="panel-header">
+        <h2>Vocal Modulation</h2>
+        <span class="panel-hint">Emotion-mapped parameters</span>
+      </div>
+
+      <div class="vocal-placeholder" id="vocalPlaceholder">
+        <div class="placeholder-icon">🎚</div>
+        <div class="placeholder-text">Parameters appear after synthesis</div>
+      </div>
+
+      <div class="vocal-result hidden" id="vocalResult">
+        <div class="param-grid" id="paramGrid"></div>
+        <div class="ssml-label">SSML Output</div>
+        <pre class="ssml-code" id="ssmlCode"></pre>
+      </div>
+    </section>
+
+    <!-- Audio Output -->
+    <section class="panel audio-panel" id="audioPanel" style="position:relative;">
+      <div class="panel-header">
+        <h2>Audio Output</h2>
+        <span class="panel-hint">Emotionally modulated speech</span>
+      </div>
+
+      <div class="audio-placeholder" id="audioPlaceholder">
+        <div class="placeholder-icon">🔊</div>
+        <div class="placeholder-text">Your audio will appear here</div>
+      </div>
+
+      <div class="audio-result hidden" id="audioResult">
+        <div class="waveform-container">
+          <canvas id="waveformCanvas" width="600" height="64"></canvas>
+        </div>
+        <div class="player-row">
+          <audio id="audioPlayer" controls></audio>
+          <a class="download-btn" id="downloadBtn" download>⬇ Download</a>
+        </div>
+        <div class="audio-meta" id="audioMeta"></div>
+      </div>
+
+      <div class="processing-overlay hidden" id="processingOverlay">
+        <div class="processing-animation">
+          <div class="wave-dot"></div>
+          <div class="wave-dot"></div>
+          <div class="wave-dot"></div>
+          <div class="wave-dot"></div>
+          <div class="wave-dot"></div>
+        </div>
+        <div class="processing-label" id="processingLabel">Detecting emotion...</div>
+      </div>
+    </section>
+
+    <!-- History -->
+    <section class="panel history-panel">
+      <div class="panel-header">
+        <h2>Recent Generations</h2>
+        <button class="refresh-btn" id="refreshHistory">↻</button>
+      </div>
+      <div class="history-list" id="historyList">
+        <div class="history-empty">No audio generated yet</div>
+      </div>
+    </section>
+
+  </main>
+
+  <div class="toast-container" id="toastContainer"></div>
+  <script src="/static/js/app.js"></script>
+</body>
+</html>
